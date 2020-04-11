@@ -1,0 +1,109 @@
+esphome:
+  name: epapertest
+  platform: ESP32
+  board: esp32dev
+
+ota:
+
+api:
+
+logger:
+
+wifi:
+  ssid: !secrets wifissid
+  password: !secrets wifipass
+  fast_connect: true
+  power_save_mode: HIGH
+  manual_ip:
+    static_ip: 192.168.20.44
+    gateway: 192.168.20.1
+    subnet: 255.255.255.0
+
+spi:
+  clk_pin: 18
+  mosi_pin: 23
+
+time:
+  - platform: homeassistant
+    id: esptime
+
+font:
+  - file: "lovebeat.ttf"
+    id: midfont
+    size: 30
+  - file: "lovebeat.ttf"
+    id: bigfont
+    size: 48
+  - file: "lovebeat.ttf"
+    id: smallfont
+    size: 15
+  - file: "monofonto.ttf"
+    id: smallbebas
+    size: 17
+
+
+sensor:
+  - platform: homeassistant
+    id: sauna_temperature
+    internal: true
+    entity_id: sensor.sauna
+  - platform: homeassistant
+    id: ulko_temperature
+    entity_id: sensor.ulko
+    internal: true
+  - platform: homeassistant
+    id: terassi_temperature
+    entity_id: sensor.terassi
+    internal: true
+  - platform: homeassistant
+    id: autotalli_temperature
+    entity_id: sensor.ulkovalot_sauna_si7021_temperature
+    internal: true
+  - platform: homeassistant
+    id: saunatupa_temperature
+    entity_id: sensor.saunatupa
+    internal: true
+
+image:
+  - file: "penguin.png"
+    id: penguin
+  - file: "penguin_scarf.png"
+    id: penguinscarf
+  - file: "penguin_blehat.png"
+    id: penguinblehat
+
+
+display:
+  - platform: waveshare_epaper
+    cs_pin: 5
+    dc_pin: 19
+    busy_pin: 4
+    reset_pin: 12
+    model: 2.90in
+    rotation: 90°
+    full_update_every: 30
+    update_interval: 15s
+    lambda: |-
+         it.printf(0, 0, id(bigfont), TextAlign::TOP_LEFT, "%.1fC", id(ulko_temperature).state);
+         it.strftime(296, 0, id(bigfont), TextAlign::TOP_RIGHT, "%H:%M", id(esptime).now());
+         it.line(0, 46, 300, 46);
+         if (id(ulko_temperature).state>20) {
+          it.image(180, 48, id(penguinblehat)); 
+         }
+         if (id(ulko_temperature).state<0) {
+           it.image(180, 48, id(penguinscarf)); 
+         } else {
+           it.image(180, 48, id(penguin));
+         }
+
+         it.printf(0, 50, id(smallbebas), TextAlign::TOP_LEFT, "SAUNATUPA");
+         it.printf(140, 50, id(smallbebas), TextAlign::TOP_RIGHT, "%.1f°C", id(saunatupa_temperature).state);
+
+         it.printf(0, 70, id(smallbebas), TextAlign::TOP_LEFT, "AUTOTALLI");
+         it.printf(140, 70, id(smallbebas), TextAlign::TOP_RIGHT, "%.1f°C", id(autotalli_temperature).state);
+
+         it.printf(0, 90, id(smallbebas), TextAlign::TOP_LEFT, "TERASSI");
+         it.printf(140, 90, id(smallbebas), TextAlign::TOP_RIGHT, "%.1f°C", id(terassi_temperature).state);
+
+         it.printf(0, 110, id(smallbebas), TextAlign::TOP_LEFT, "SAUNA");
+         it.printf(140, 110, id(smallbebas), TextAlign::TOP_RIGHT, "%.1f°C", id(sauna_temperature).state);
