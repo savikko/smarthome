@@ -13,15 +13,10 @@ wifi:
   ssid: !secret wifissid
   password: !secret wifipass
   fast_connect: true
-  power_save_mode: HIGH
   manual_ip:
     static_ip: 192.168.20.44
     gateway: 192.168.20.1
     subnet: 255.255.255.0
-
-deep_sleep:
-  run_duration: 10s
-  sleep_duration: 10min
 
 spi:
   clk_pin: 18
@@ -68,6 +63,20 @@ sensor:
     entity_id: sensor.saunatupa
     internal: true
 
+text_sensor:
+  - platform: homeassistant
+    id: etuovi
+    entity_id: lock.lohko
+    internal: true
+  - platform: homeassistant
+    id: takaovi
+    entity_id: lock.takaovi
+    internal: true
+  - platform: homeassistant
+    id: saunatupa
+    entity_id: lock.saunatupa
+    internal: true
+
 image:
   - file: "penguin.png"
     id: penguin
@@ -75,7 +84,10 @@ image:
     id: penguinscarf
   - file: "penguin_blehat.png"
     id: penguinblehat
-
+  - file: "lock_open.png"
+    id: lockopen
+  - file: "lock_closed.png"
+    id: lockclosed
 
 display:
   - platform: waveshare_epaper
@@ -85,13 +97,13 @@ display:
     reset_pin: 12
     model: 2.90in
     rotation: 180°
-    full_update_every: 30
-    update_interval: 15s
+    full_update_every: 300
+    update_interval: 2s
     lambda: |-
          
          it.strftime(64, 2, id(bigfont), TextAlign::TOP_CENTER, "%H:%M", id(esptime).now());
-         it.line(0, 45, 300, 45);
-         it.printf(64, 155, id(bigfont), TextAlign::TOP_CENTER, "%.1fC", id(ulko_temperature).state);
+         it.line(0, 42, 300, 42);
+         it.printf(64, 148, id(bigfont), TextAlign::TOP_CENTER, "%.1fC", id(ulko_temperature).state);
          if (id(ulko_temperature).state>20) {
           it.image(15, 50, id(penguinblehat)); 
          }
@@ -100,7 +112,32 @@ display:
          } else {
            it.image(15, 50, id(penguin));
          }
-         it.line(0, 205, 300, 205);
+
+         it.printf(12, 185, id(smallbebas), TextAlign::TOP_LEFT, "E");
+         it.printf(50, 185, id(smallbebas), TextAlign::TOP_LEFT, "T");
+         it.printf(90, 185, id(smallbebas), TextAlign::TOP_LEFT, "S");
+         if (id(etuovi).state == "locked") {
+           it.image(17, 185, id(lockclosed));
+         } else {
+           it.image(17, 185, id(lockopen));
+         }
+         
+         
+         if (id(takaovi).state == "locked") {
+           it.image(57, 185, id(lockclosed));
+         } else {
+           it.image(57, 185, id(lockopen));
+         }
+         
+         
+         if (id(saunatupa).state == "locked") {
+           it.image(97, 185, id(lockclosed));
+         } else {
+           it.image(97, 185, id(lockopen));
+         }
+         
+
+         it.line(0, 208, 300, 208);
          it.printf(0, 210, id(smallbebas), TextAlign::TOP_LEFT, "SAUNATUPA");
          it.printf(125, 210, id(smallbebas), TextAlign::TOP_RIGHT, "%.1f°C", id(saunatupa_temperature).state);
 
