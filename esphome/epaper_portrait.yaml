@@ -14,7 +14,7 @@ wifi:
   password: !secret wifipass
   fast_connect: true
   manual_ip:
-    static_ip: 192.168.20.44
+    static_ip: 192.168.20.45
     gateway: 192.168.20.1
     subnet: 255.255.255.0
 
@@ -39,6 +39,9 @@ font:
   - file: "monofonto.ttf"
     id: smallbebas
     size: 16
+  - file: "monofonto.ttf"
+    id: verysmallbebas
+    size: 12
 
 
 sensor:
@@ -62,6 +65,10 @@ sensor:
     id: saunatupa_temperature
     entity_id: sensor.saunatupa
     internal: true
+  - platform: homeassistant
+    id: uv_now
+    internal: true
+    entity_id: sensor.uv_now
 
 text_sensor:
   - platform: homeassistant
@@ -104,14 +111,19 @@ display:
          it.strftime(64, 2, id(bigfont), TextAlign::TOP_CENTER, "%H:%M", id(esptime).now());
          it.line(0, 42, 300, 42);
          it.printf(64, 148, id(bigfont), TextAlign::TOP_CENTER, "%.1fC", id(ulko_temperature).state);
-         if (id(ulko_temperature).state>20) {
-          it.image(15, 50, id(penguinblehat)); 
-         }
+         
          if (id(ulko_temperature).state<0) {
            it.image(15, 50, id(penguinscarf)); 
          } else {
            it.image(15, 50, id(penguin));
          }
+         if (id(ulko_temperature).state>20) {
+           it.image(15, 50, id(penguinblehat)); 
+           it.printf(50, 93, id(smallbebas), TextAlign::TOP_LEFT, "UV%.0f", id(uv_now).state);
+         } else {
+           it.image(15, 50, id(penguin));
+         }
+
 
          it.printf(12, 185, id(smallbebas), TextAlign::TOP_LEFT, "E");
          it.printf(50, 185, id(smallbebas), TextAlign::TOP_LEFT, "T");
