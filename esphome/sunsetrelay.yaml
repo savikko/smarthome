@@ -1,0 +1,117 @@
+esphome:
+  name: ulkovaloshelly
+  platform: ESP8266
+  board: esp01_1m
+
+ota:
+
+logger:
+  level: DEBUG
+
+web_server:
+  port: 80
+
+wifi:
+  ssid: ssid
+  password: password
+  manual_ip:
+    static_ip: 192.168.8.50
+    gateway: 192.168.8.1
+    subnet: 255.255.255.0
+    dns1: 192.168.8.1
+  ap:
+    ssid: "ProblematicShelly"
+    password: "shellyshelly"
+
+captive_portal:
+    
+time:
+  - platform: sntp
+    id: sntp_time
+    servers: fi.pool.ntp.org
+    on_time:
+      - seconds: 0
+        minutes: 0
+        hours: 22
+        then:
+          - switch.turn_off: ulkovalot
+      - seconds: 0
+        minutes: 0
+        hours: 6
+        then:
+          - if:
+              condition:
+                - sun.is_below_horizon
+              then:
+                - switch.turn_on: ulkovalot
+
+sun:
+  latitude: 62.000000
+  longitude: 22.000000
+  on_sunrise:
+    - then:
+      - switch.turn_off: ulkovalot
+  on_sunset:
+    - then:
+        - if:
+            condition:
+              - lambda: >-
+                  auto time = id(sntp_time).now();
+                  return time.hour < 22;
+            then:
+              - switch.turn_on: ulkovalot
+
+switch:
+  - platform: gpio
+    id: ulkovalot
+    name: Ulkovaloswitch
+    pin: GPIO4
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO5
+    name: "Valokatkaisin"
+    on_state:
+      then:
+        - switch.toggle: ulkovalot
+    internal: true
+    id: switchid
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
