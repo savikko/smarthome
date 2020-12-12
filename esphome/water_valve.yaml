@@ -1,0 +1,39 @@
+esphome:
+  name: water_valve
+  platform: ESP8266
+  board: esp01_1m
+
+wifi:
+  ssid: !secret wifissid
+  password: !secret wifipass
+  fast_connect: true
+  power_save_mode: HIGH
+  manual_ip:
+    static_ip: 192.168.20.49
+    gateway: 192.168.20.1
+    subnet: 255.255.255.0
+
+logger:
+# Enable Home Assistant API
+api:
+ota:
+
+switch:
+  - platform: gpio
+    name: "water_valve_relay"
+    pin: GPIO12
+    id: switch_relay
+    restore_mode: RESTORE_DEFAULT_OFF
+    icon: mdi:water-pump
+    on_turn_on:
+    - logger.log: "Valve Turned On!"
+    on_turn_off:
+    - logger.log: "Valve Turned Off!"
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO13
+    name:  "water_valve_button"
+    on_press:
+      - switch.toggle: switch_relay
