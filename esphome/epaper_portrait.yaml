@@ -69,6 +69,10 @@ sensor:
     id: uv_now
     internal: true
     entity_id: sensor.uv_now
+  - platform: homeassistant
+    id: water_daily_litres
+    internal: true
+    entity_id: sensor.daily_water_in_litres
 
 text_sensor:
   - platform: homeassistant
@@ -111,6 +115,7 @@ display:
          it.strftime(64, 2, id(bigfont), TextAlign::TOP_CENTER, "%H:%M", id(esptime).now());
          it.line(0, 42, 300, 42);
          it.printf(64, 148, id(bigfont), TextAlign::TOP_CENTER, "%.1fC", id(ulko_temperature).state);
+
          
          if (id(ulko_temperature).state<0) {
            it.image(15, 50, id(penguinscarf)); 
@@ -119,11 +124,11 @@ display:
          }
          if (id(ulko_temperature).state>20) {
            it.image(15, 50, id(penguinblehat)); 
-           it.printf(50, 93, id(smallbebas), TextAlign::TOP_LEFT, "UV%.0f", id(uv_now).state);
+           it.printf(0, 42, id(smallbebas), TextAlign::TOP_LEFT, "UV%.0f", id(uv_now).state);
          } else {
            it.image(15, 50, id(penguin));
          }
-
+         it.printf(125, 42, id(smallbebas), TextAlign::TOP_RIGHT, "%.0fL", id(water_daily_litres).state);
 
          it.printf(12, 185, id(smallbebas), TextAlign::TOP_LEFT, "E");
          it.printf(50, 185, id(smallbebas), TextAlign::TOP_LEFT, "T");
