@@ -1,0 +1,66 @@
+esphome:
+  name: ultrasonickaappivalo
+  platform: ESP8266
+  board: d1_mini_pro
+
+ota:
+
+api:
+  reboot_timeout: 0s
+
+logger:
+
+web_server:
+  port: 80
+
+wifi:
+  ssid: !secret wifissid
+  password: !secret wifipass
+  fast_connect: true
+  power_save_mode: HIGH
+  manual_ip:
+    static_ip: 192.168.8.51
+    gateway: 192.168.8.1
+    subnet: 255.255.255.0
+
+output:
+  - platform: esp8266_pwm
+    pin: D5
+    frequency: 20000 Hz
+    id: pwm_output
+
+sensor:
+  - platform: ultrasonic
+    trigger_pin: D1
+    echo_pin: D2
+    update_interval: 0.6s
+    id: ultrasensor
+    internal: true
+    on_value_range:
+      - above: 0.10
+        below: 0.35
+        then:
+          - light.turn_on:
+              id: kaappivalo
+              brightness: !lambda |-
+                return id(ultrasensor).state * 2;
+      - above: 0.37
+        below: 0.40
+        then:
+          - light.turn_off:
+              id: kaappivalo
+              transition_length: 1s
+      - above: 0.42
+        below: 2.00
+        then:
+          - light.turn_on:
+              id: kaappivalo
+              transition_length: 1s
+              brightness: 100%
+    accuracy_decimals: 2
+
+light:
+  - platform: monochromatic
+    output: pwm_output
+    name: "Kitchen Light"
+    id: kaappivalo
