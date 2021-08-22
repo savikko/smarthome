@@ -1,0 +1,122 @@
+esphome:
+  name: sauna_display
+  platform: ESP32
+  board: esp32dev
+
+ota:
+
+api:
+
+logger:
+
+wifi:
+  ssid: !secret wifissid
+  password: !secret wifipass
+  fast_connect: true
+  power_save_mode: HIGH
+  manual_ip:
+    static_ip: 192.168.20.53
+    gateway: 192.168.20.1
+    subnet: 255.255.255.0
+
+spi:
+  clk_pin: 18
+  mosi_pin: 23
+
+time:
+  - platform: homeassistant
+    id: esptime
+
+font:
+  - file: "lovebeat.ttf"
+    id: midfont
+    size: 24
+  - file: "lovebeat.ttf"
+    id: bigfont
+    size: 50
+  - file: "lovebeat.ttf"
+    id: smallfont
+    size: 15
+  - file: "monofonto.ttf"
+    id: smallbebas
+    size: 16
+  - file: "monofonto.ttf"
+    id: verysmallbebas
+    size: 12
+
+
+sensor:
+  - platform: homeassistant
+    id: sauna_temperature
+    internal: true
+    entity_id: sensor.sauna
+  - platform: homeassistant
+    id: ulko_temperature
+    entity_id: sensor.ulko
+    internal: true
+  - platform: homeassistant
+    id: terassi_temperature
+    entity_id: sensor.terassi
+    internal: true
+  - platform: homeassistant
+    id: autotalli_temperature
+    entity_id: sensor.ulkovalot_sauna_si7021_temperature
+    internal: true
+  - platform: homeassistant
+    id: saunatupa_temperature
+    entity_id: sensor.saunatupa
+    internal: true
+  - platform: homeassistant
+    id: uv_now
+    internal: true
+    entity_id: sensor.uv_now
+  - platform: homeassistant
+    id: water_daily_litres
+    internal: true
+    entity_id: sensor.daily_water_in_litres
+
+text_sensor:
+  - platform: homeassistant
+    id: etuovi
+    entity_id: lock.lohko
+    internal: true
+  - platform: homeassistant
+    id: takaovi
+    entity_id: lock.takaovi
+    internal: true
+  - platform: homeassistant
+    id: saunatupa
+    entity_id: lock.saunatupa
+    internal: true
+
+image:
+  - file: "saunakiulu.png"
+    id: saunakiulu
+
+display:
+  - platform: waveshare_epaper
+    cs_pin: 5
+    dc_pin: 19
+    busy_pin: 4
+    reset_pin: 12
+    model: 2.90inv2
+    full_update_every: 30
+    update_interval: 4s
+    rotation: 180°
+    lambda: |-
+
+         it.image(15, 5, id(saunakiulu));
+         it.strftime(2, 2, id(midfont), TextAlign::TOP_LEFT, "%H:%M", id(esptime).now());
+         it.printf(64, 160, id(bigfont), TextAlign::TOP_CENTER, "%.0f C", id(sauna_temperature).state);
+         it.printf(81, 135, id(bigfont), TextAlign::TOP_CENTER, ".");
+
+         it.line(0, 228, 300, 228);
+         it.printf(0, 230, id(smallbebas), TextAlign::TOP_LEFT, "SAUNATUPA");
+         it.printf(125, 230, id(smallbebas), TextAlign::TOP_RIGHT, "%.1f°C", id(saunatupa_temperature).state);
+
+         it.printf(0, 250, id(smallbebas), TextAlign::TOP_LEFT, "ULKO");
+         it.printf(125, 250, id(smallbebas), TextAlign::TOP_RIGHT, "%.1f°C", id(ulko_temperature).state);
+
+         it.printf(0, 270, id(smallbebas), TextAlign::TOP_LEFT, "TERASSI");
+         it.printf(125, 270, id(smallbebas), TextAlign::TOP_RIGHT, "%.1f°C", id(terassi_temperature).state);
+
