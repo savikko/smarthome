@@ -95,9 +95,9 @@ image:
     id: penguinscarf
   - file: "penguin_blehat.png"
     id: penguinblehat
-  - file: "lock_open.png"
+  - file: "unlock.png" # credits to Font Awesome!
     id: lockopen
-  - file: "lock_closed.png"
+  - file: "lock.png" # credits to Font Awesome!
     id: lockclosed
 
 display:
@@ -119,38 +119,36 @@ display:
          
          if (id(ulko_temperature).state<0) {
            it.image(15, 50, id(penguinscarf)); 
-         } else {
-           it.image(15, 50, id(penguin));
-         }
-         if (id(ulko_temperature).state>20) {
+         } else if (id(ulko_temperature).state>20) {
            it.image(15, 50, id(penguinblehat)); 
            it.printf(0, 42, id(smallbebas), TextAlign::TOP_LEFT, "UV%.0f", id(uv_now).state);
          } else {
            it.image(15, 50, id(penguin));
          }
+
          it.printf(125, 42, id(smallbebas), TextAlign::TOP_RIGHT, "%.0fL", id(water_daily_litres).state);
 
          it.printf(12, 185, id(smallbebas), TextAlign::TOP_LEFT, "E");
          it.printf(50, 185, id(smallbebas), TextAlign::TOP_LEFT, "T");
          it.printf(90, 185, id(smallbebas), TextAlign::TOP_LEFT, "S");
          if (id(etuovi).state == "locked") {
-           it.image(17, 185, id(lockclosed));
+           it.image(23, 187, id(lockclosed));
          } else {
-           it.image(17, 185, id(lockopen));
+           it.image(23, 187, id(lockopen));
          }
          
          
          if (id(takaovi).state == "locked") {
-           it.image(57, 185, id(lockclosed));
+           it.image(61, 187, id(lockclosed));
          } else {
-           it.image(57, 185, id(lockopen));
+           it.image(61, 187, id(lockopen));
          }
          
          
          if (id(saunatupa).state == "locked") {
-           it.image(97, 185, id(lockclosed));
+           it.image(101, 187, id(lockclosed));
          } else {
-           it.image(97, 185, id(lockopen));
+           it.image(101, 187, id(lockopen));
          }
          
 
