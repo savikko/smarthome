@@ -1,0 +1,244 @@
+esphome:
+  name: smartheadboard
+  platform: ESP32
+  board: esp32dev
+
+ota:
+
+api:
+
+logger:
+
+wifi:
+  ssid: !secret wifissid
+  password: !secret wifipass
+  fast_connect: true
+  power_save_mode: HIGH
+  manual_ip:
+    static_ip: 192.168.20.58
+    gateway: 192.168.20.1
+    subnet: 255.255.255.0
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO15
+      mode: INPUT_PULLUP
+    id: raw_switch_state_right
+    internal: true
+    filters:
+      - invert:
+      - delayed_on: 30ms
+      - delayed_off: 30ms
+    on_multi_click:
+      - timing:
+          - ON for 40ms to 400ms
+          - OFF for at least 50ms
+        then:
+          - if:
+              condition: 
+                - light.is_on: full_strip
+              then:
+                - light.turn_off: full_strip
+                - light.turn_off: left_side
+                - light.turn_on: right_side
+              else:
+                - light.toggle: right_side
+      - timing:
+          - ON for 1s to 2s
+        then:
+          - if:
+              condition:
+                or: 
+                  - light.is_on: right_side
+                  - light.is_on: left_side
+                  - light.is_on: full_strip
+              then:
+                - light.turn_off: left_side
+                - light.turn_off: right_side
+                - light.turn_off: full_strip
+              else:
+                - light.turn_on: full_strip
+      - timing:
+          - ON for at least 3s
+        then:                
+          - light.turn_off: right_side
+          - light.turn_off: left_side
+          - light.turn_off: full_strip
+          - light.turn_on:
+              id: full_strip
+              effect: twinkle
+  - platform: gpio
+    pin:
+      number: GPIO12
+      mode: INPUT_PULLUP
+    id: raw_switch_state_left
+    internal: true
+    filters:
+      - invert:
+      - delayed_on: 30ms
+      - delayed_off: 30ms
+    on_multi_click:
+      - timing:
+          - ON for 40ms to 400ms
+          - OFF for at least 50ms
+        then:
+          - if:
+              condition: 
+                - light.is_on: full_strip
+              then:
+                - light.turn_off: full_strip
+                - light.turn_off: right_side
+                - light.turn_on: left_side
+              else:
+                - light.toggle: left_side
+      - timing:
+          - ON for 1s to 2s
+        then:
+          - if:
+              condition:
+                or: 
+                  - light.is_on: left_side
+                  - light.is_on: right_side
+                  - light.is_on: full_strip
+              then:
+                - light.turn_off: right_side
+                - light.turn_off: left_side
+                - light.turn_off: full_strip
+              else:
+                - light.turn_on: full_strip
+      - timing:
+          - ON for at least 3s
+        then:                
+          - light.turn_off: right_side
+          - light.turn_off: left_side
+          - light.turn_off: full_strip
+          - light.turn_on:
+              id: full_strip
+              effect: twinkle
+
+light:
+  - platform: fastled_clockless
+    chipset: WS2812B
+    pin: GPIO16
+    id: "headboard_light"
+    num_leds: 145
+    rgb_order: GRB
+    #color_mode: RGB_WHITE
+    default_transition_length: 1s
+    name: "headboard_light"
+  - platform: partition
+    id: right_side
+    name: "Right side"
+    segments:
+      - id: headboard_light
+        from: 10
+        to: 50
+  - platform: partition
+    name: "Left side"
+    id: left_side
+    segments:
+      - id: headboard_light
+        from: 70
+        to: 110
+  - platform: partition
+    id: full_strip
+    name: "Full"
+    segments:
+      - id: headboard_light
+        from: 0
+        to: 144
+    effects:
+      - addressable_twinkle:
+          name: twinkle
+          twinkle_probability: 20%
+          progress_interval: 4ms
+      - addressable_lambda:
+          name: sunrise
+          update_interval: 50ms
+          lambda: |-
+            // Static variables keep their value even when
+            // stopping and starting the effect again
+            static uint16_t progress = 0;
+            static uint16_t colorround = 0;
+            static uint16_t batch = 0;
+            static uint16_t center = 0;
+            static uint16_t length = 100;
+            static uint16_t heat = 0;
+
+            // normal variables lost their value after each
+            // execution - basically after each update_interval
+            // it.size() - Number of LEDs
+            // it[num] - Access the LED at index num.
+            // Set the LED at num to the given r, g, b values
+            // it[num] = Color(r, g, b);
+            // Get the color at index num (Color instance)
+            // it[num].get();
+            uint16_t changes = 0;
+            uint16_t start = 0;
+            uint16_t end = 0;
+            uint16_t secondstart = 0;
+            uint16_t secondend = 0;
+            double percent = 0;
+
+
+            // To reset static when stopping and starting the effect
+            // again you can use the initial_run variables
+            if (initial_run) {
+              progress = 0;
+              colorround = 0;
+              it.all() = Color::BLACK;
+              center = it.size()/2;
+              batch = it.size()/length;
+              // optionally do a return so nothing happens until the next update_interval
+              return;
+            } else {
+              progress++;
+            }
+
+            ESP_LOGD("test", "progress %u", progress);
+            ESP_LOGD("test", "batch %u", batch);
+            ESP_LOGD("test", "colorround %u", colorround);
+
+            start = center-(progress*batch);
+            end = center+(progress*batch);
+            // ESP_LOGD("test", "start %u", start);
+            // ESP_LOGD("test", "end %u", end);
+            if (end>it.size()) {
+              progress=0;
+              colorround++;
+            }
+
+            percent = progress/(it.size()/length);
+
+            ESP_LOGD("test", "percent %u", percent);
+
+
+            heat = (255*(percent/100))*2;
+
+            ESP_LOGD("test", "heat %u", heat);
+            if (colorround==0) {
+              it.range(start, end) = Color(heat, 0, 0);
+            } else if (colorround==1) {
+              it.range(start, end) = Color(heat, heat, 0);
+            } else if (colorround==2) {
+              it.range(start, end) = Color(255, 255, 255,heat);
+            } else {
+              it.range(start, end) = Color(255, 255, 255, 255);
+            }
+
+            //if (percent>60) {
+            //  secondstart = start-center;
+            //  secondend = end-center;
+            //  // ESP_LOGD("test", "secondstart %u", secondstart);
+            //  // ESP_LOGD("test", "secondend %u", secondend);
+            //  if (colorround==0) { 
+            //    it.range(secondstart, secondend) = Color(heat, heat/2, 0);
+            //  } else if (colorround==1) {
+            //    it.range(secondstart, secondend) = Color(255, heat, 255, heat/2);
+            //  } 
+            //}
+
+time:
+  - platform: homeassistant
+    id: esptime

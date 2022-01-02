@@ -1,0 +1,148 @@
+esphome:
+  name: gls10
+  platform: ESP32
+  board: esp32dev
+  platformio_options:
+    platform: espressif32@3.2.0
+    board: az-delivery-devkit-v4
+    board_build.mcu: esp32
+    board_build.f_cpu: 240000000L
+
+ota:
+
+api:
+
+# web_server:
+#   port: 80
+
+logger:
+
+wifi:
+  ssid: !secret wifissid
+  password: !secret wifipass
+  fast_connect: true
+  #power_save_mode: none
+  manual_ip:
+    static_ip: 192.168.20.58
+    gateway: 192.168.20.1
+    subnet: 255.255.255.0
+
+# ethernet:
+#   type: LAN8720
+#   mdc_pin: GPIO23
+#   mdio_pin: GPIO18
+#   clk_mode: GPIO17_OUT
+#   phy_addr: 1
+#   manual_ip:
+#     static_ip: 192.168.20.58
+#     gateway: 192.168.20.1
+#     subnet: 255.255.255.0
+
+esp32_ble_tracker:
+  scan_parameters:
+    interval: 160ms
+    window: 15ms
+    duration: 60s
+
+text_sensor:
+  - platform: template
+    name: Uptime Human Readable
+    id: uptime_human
+    icon: mdi:clock-start
+
+sensor:
+  - platform: uptime
+    name: Uptime Sensor
+    id: uptime_sensor
+    update_interval: 60s
+    on_raw_value:
+      then:
+        - text_sensor.template.publish:
+            id: uptime_human
+            state: !lambda |-
+              int seconds = round(id(uptime_sensor).raw_state);
+              int days = seconds / (24 * 3600);
+              seconds = seconds % (24 * 3600);
+              int hours = seconds / 3600;
+              seconds = seconds % 3600;
+              int minutes = seconds /  60;
+              seconds = seconds % 60;
+              return (
+                (days ? to_string(days) + "d " : "") +
+                (hours ? to_string(hours) + "h " : "") +
+                (minutes ? to_string(minutes) + "m " : "") +
+                (to_string(seconds) + "s")
+              ).c_str();
+  - platform: ruuvitag
+    mac_address: E9:5B:DF:BE:AB:01
+    humidity:
+      name: "Terassi Humidity"
+    temperature:
+      name: "Terassi Temperature"
+
+  - platform: ruuvitag
+    mac_address: E3:DF:DB:F0:A3:2B
+    humidity:
+      name: "Ulko Humidity"
+    temperature:
+      name: "Ulko Temperature"
+
+  - platform: ruuvitag
+    mac_address: F6:61:87:2F:57:EA
+    humidity:
+      name: "Saunatupa Humidity"
+    temperature:
+      name: "Saunatupa Temperature"
+
+  - platform: ruuvitag
+    mac_address: D0:FE:0E:CB:E5:06
+    humidity:
+      name: "Sauna Humidity"
+    temperature:
+      name: "Sauna Temperature"
+
+  - platform: ruuvitag
+    mac_address: C9:2E:8E:4F:6D:40
+    humidity:
+      name: "Talo Humidity"
+    temperature:
+      name: "Talo Temperature"
+
+  - platform: xiaomi_hhccjcy01
+    mac_address: "C4:7C:8D:6D:78:9B"
+    temperature:
+      name: Kasvisensori 3 Temperature"
+    moisture:
+      name: Kasvisensori 3 Moisture"
+    illuminance:
+      name: Kasvisensori 3 Illuminance"
+    conductivity:
+      name: Kasvisensori 3 Soil Conductivity"
+    battery_level:
+      name: Kasvisensori 3 Battery Level"
+
+  - platform: xiaomi_hhccjcy01
+    mac_address: "C4:7C:8D:6D:72:41"
+    temperature:
+      name: "Kasvisensori 1 Temperature"
+    moisture:
+      name: "Kasvisensori 1 Moisture"
+    illuminance:
+      name: "Kasvisensori 1 Illuminance"
+    conductivity:
+      name: "Kasvisensori 1 Soil Conductivity"
+    battery_level:
+      name: "Kasvisensori 1 Battery Level"
+
+  - platform: xiaomi_hhccjcy01
+    mac_address: "C4:7C:8D:6D:72:09"
+    temperature:
+      name: "Kasvisensori 2 Temperature"
+    moisture:
+      name: "Kasvisensori 2 Moisture"
+    illuminance:
+      name: "Kasvisensori 2 Illuminance"
+    conductivity:
+      name: "Kasvisensori 2 Soil Conductivity"
+    battery_level:
+      name: "Kasvisensori 2 Battery Level"
