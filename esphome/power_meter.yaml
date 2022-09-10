@@ -1,0 +1,36 @@
+esphome:
+  name: sahkon-kulutus
+  platform: ESP8266
+  board: d1_mini_pro
+
+logger:
+
+api:
+
+ota:
+  
+wifi:
+  ssid: !secret wifissid
+  password: !secret wifipass
+  fast_connect: true
+  power_save_mode: HIGH
+  manual_ip:
+    static_ip: 192.168.20.39
+    gateway: 192.168.20.1
+    subnet: 255.255.255.0
+
+sensor:
+  - platform: pulse_meter
+    pin: 14
+    unit_of_measurement: 'W'
+    name: 'Hetkellinen kulutus'
+    filters:
+      - multiply: 60 # (60s/1000 pulses per kWh)
+
+    total:
+      name: "Kumulatiivinen kulutus"
+      unit_of_measurement: "kWh"
+      device_class: energy
+      accuracy_decimals: 2
+      filters:
+        - multiply: 0.001 # (60s/1000 pulses per kWh)

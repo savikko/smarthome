@@ -1,0 +1,39 @@
+esphome:
+  name: "garage_switch"
+  platform: ESP8266
+  board: d1_mini_pro
+
+logger:
+
+api:
+
+ota:
+  
+wifi:
+  ssid: !secret wifissid
+  password: !secret wifipass
+  fast_connect: true
+  power_save_mode: HIGH
+  manual_ip:
+    static_ip: 192.168.20.38
+    gateway: 192.168.20.1
+    subnet: 255.255.255.0
+
+switch:
+  - platform: gpio
+    pin:
+      number: 14
+      inverted: true
+    id: relay
+    name: "garage_door"
+    icon: "mdi:gate"
+    on_turn_on:
+    - delay: 20ms
+    - switch.turn_off: relay
+
+sensor:
+  - platform: ultrasonic
+    trigger_pin: 4
+    echo_pin: 5
+    name: "ultrasonic_sensor"
+    update_interval: 1s
