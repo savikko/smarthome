@@ -28,7 +28,7 @@ switch:
     name: "garage_door"
     icon: "mdi:gate"
     on_turn_on:
-    - delay: 20ms
+    - delay: 80ms
     - switch.turn_off: relay
 
 sensor:
