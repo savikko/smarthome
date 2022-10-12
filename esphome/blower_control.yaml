@@ -1,0 +1,52 @@
+esphome:
+  name: blower_control
+  platform: ESP32
+  board: esp32dev
+
+ota:
+
+api:
+
+logger:
+
+wifi:
+  ssid: !secret wifissid
+  password: !secret wifipass
+  fast_connect: true
+  power_save_mode: HIGH
+  manual_ip:
+    static_ip: 192.168.20.47
+    gateway: 192.168.20.1
+    subnet: 255.255.255.0
+
+output:
+  - platform: gpio
+    id: relay_1
+    pin: GPIO26
+  - platform: gpio
+    id: relay_2
+    pin: GPIO25
+
+  - platform: template
+    id: fan_template_output
+    type: float
+    write_action:
+      - then:
+        - lambda: |-
+            if (state > 0.99) { // boost, speed 100%
+              id(relay_1).turn_off();
+              id(relay_2).turn_off();
+            } else if (state > 0.66) { // normal, speed 66%
+              id(relay_1).turn_on();
+              id(relay_2).turn_on();
+            } else if (state > 0) { // away, speed 33%
+              id(relay_1).turn_off();
+              id(relay_2).turn_on();
+            }
+
+fan:
+  - platform: speed
+    output: fan_template_output
+    restore_mode: RESTORE_DEFAULT_ON
+    name: "sauna_fan"
+    speed_count: 3
