@@ -1,0 +1,51 @@
+esphome:
+  name: co2_senseair
+
+esp8266:
+  board: d1_mini
+
+wifi:
+  ssid: !secret wifissid
+  password: !secret wifipass
+  fast_connect: true
+  manual_ip:
+    static_ip: 192.168.20.63
+    gateway: 192.168.20.1
+    subnet: 255.255.255.0
+
+logger:
+  baud_rate: 0
+api:
+ota:
+
+i2c:
+ sda: D2
+ scl: D1 
+ scan: true
+ id: bus_a
+
+uart:
+  rx_pin: RX
+  tx_pin: TX
+  baud_rate: 9600
+
+sensor:
+  - platform: senseair
+    co2:
+      name: "Olohuone CO2"
+    update_interval: 60s
+  - platform: sgp30
+    eco2:
+      name: "Olohuone eCO2"
+      accuracy_decimals: 1
+    tvoc:
+      name: "Olohuone TVOC"
+      accuracy_decimals: 1
+    store_baseline: yes
+    address: 0x58
+    update_interval: 60s
+  - platform: bmp085
+    temperature:
+      name: "Olohuone Temperature"
+    pressure:
+      name: "Olohuone Pressure"

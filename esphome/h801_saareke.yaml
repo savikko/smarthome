@@ -1,0 +1,28 @@
+esphome:
+  name: h801_saareke
+
+esp8266:
+  board: esp01_1m
+
+wifi:
+  ssid: !secret wifissid
+  password: !secret wifipass
+  manual_ip:
+    static_ip: 192.168.20.60
+    gateway: 192.168.20.1
+    subnet: 255.255.255.0
+
+logger:
+api:
+ota:
+
+output:
+  - platform: esp8266_pwm
+    pin: 13
+    frequency: 1000 Hz
+    id: pwm_g
+
+light:
+  - platform: monochromatic
+    output: pwm_g
+    name: "Saareke valo"

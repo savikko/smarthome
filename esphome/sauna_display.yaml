@@ -49,22 +49,18 @@ sensor:
   - platform: homeassistant
     id: sauna_temperature
     internal: true
-    entity_id: sensor.sauna
+    entity_id: sensor.ruuvi_sauna_tempc 
   - platform: homeassistant
     id: ulko_temperature
-    entity_id: sensor.ulko
+    entity_id: sensor.ruuvi_ulko_tempc
     internal: true
   - platform: homeassistant
     id: terassi_temperature
-    entity_id: sensor.terassi
-    internal: true
-  - platform: homeassistant
-    id: autotalli_temperature
-    entity_id: sensor.ulkovalot_sauna_si7021_temperature
+    entity_id: sensor.ruuvi_terassi_tempc
     internal: true
   - platform: homeassistant
     id: saunatupa_temperature
-    entity_id: sensor.saunatupa
+    entity_id: sensor.ruuvi_saunatupa_tempc
     internal: true
   - platform: homeassistant
     id: uv_now

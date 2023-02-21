@@ -34,6 +34,9 @@ font:
     id: bigfont
     size: 40
   - file: "lovebeat.ttf"
+    id: verybigfont
+    size: 70
+  - file: "lovebeat.ttf"
     id: smallfont
     size: 15
   - file: "monofonto.ttf"
@@ -48,22 +51,22 @@ sensor:
   - platform: homeassistant
     id: sauna_temperature
     internal: true
-    entity_id: sensor.sauna
+    entity_id: sensor.ruuvi_sauna_tempc
   - platform: homeassistant
     id: ulko_temperature
-    entity_id: sensor.ulko
+    entity_id: sensor.ruuvi_ulko_tempc
     internal: true
   - platform: homeassistant
     id: terassi_temperature
-    entity_id: sensor.terassi
+    entity_id: sensor.ruuvi_terassi_tempc
     internal: true
   - platform: homeassistant
-    id: autotalli_temperature
-    entity_id: sensor.ulkovalot_sauna_si7021_temperature
+    id: electricity_price
+    entity_id: sensor.electricity_price_now
     internal: true
   - platform: homeassistant
     id: saunatupa_temperature
-    entity_id: sensor.saunatupa
+    entity_id: sensor.ruuvi_saunatupa_tempc
     internal: true
   - platform: homeassistant
     id: uv_now
@@ -114,50 +117,56 @@ display:
          
          it.strftime(64, 2, id(bigfont), TextAlign::TOP_CENTER, "%H:%M", id(esptime).now());
          it.line(0, 42, 300, 42);
-         it.printf(64, 148, id(bigfont), TextAlign::TOP_CENTER, "%.1fC", id(ulko_temperature).state);
+         it.printf(64, 168, id(bigfont), TextAlign::TOP_CENTER, "%.1fC", id(ulko_temperature).state);
+
+         it.printf(64, 125, id(smallbebas), TextAlign::TOP_CENTER, "SAHKON HINTA");
+         it.line(0, 146, 300, 146);
+         it.printf(64, 148, id(smallbebas), TextAlign::TOP_CENTER, "ULKO");
+
+         it.printf(64, 62, id(verybigfont), TextAlign::TOP_CENTER, "%.0f", id(electricity_price).state);
 
          
-         if (id(ulko_temperature).state<0) {
-           it.image(15, 50, id(penguinscarf)); 
-         } else if (id(ulko_temperature).state>20) {
-           it.image(15, 50, id(penguinblehat)); 
-           it.printf(0, 42, id(smallbebas), TextAlign::TOP_LEFT, "UV%.0f", id(uv_now).state);
-         } else {
-           it.image(15, 50, id(penguin));
-         }
+         //if (id(ulko_temperature).state<0) {
+         //  it.image(15, 50, id(penguinscarf)); 
+         //} else if (id(ulko_temperature).state>20) {
+         //  it.image(15, 50, id(penguinblehat)); 
+         //  it.printf(0, 42, id(smallbebas), TextAlign::TOP_LEFT, "UV%.0f", id(uv_now).state);
+         //} else {
+         //  it.image(15, 50, id(penguin));
+         //}
 
          it.printf(125, 42, id(smallbebas), TextAlign::TOP_RIGHT, "%.0fL", id(water_daily_litres).state);
 
-         it.printf(12, 185, id(smallbebas), TextAlign::TOP_LEFT, "E");
-         it.printf(50, 185, id(smallbebas), TextAlign::TOP_LEFT, "T");
-         it.printf(90, 185, id(smallbebas), TextAlign::TOP_LEFT, "S");
+         it.printf(12, 205, id(smallbebas), TextAlign::TOP_LEFT, "E");
+         it.printf(50, 205, id(smallbebas), TextAlign::TOP_LEFT, "T");
+         it.printf(90, 205, id(smallbebas), TextAlign::TOP_LEFT, "S");
          if (id(etuovi).state == "locked") {
-           it.image(23, 187, id(lockclosed));
+           it.image(23, 207, id(lockclosed));
          } else {
-           it.image(23, 187, id(lockopen));
+           it.image(23, 207, id(lockopen));
          }
          
          
          if (id(takaovi).state == "locked") {
-           it.image(61, 187, id(lockclosed));
+           it.image(61, 207, id(lockclosed));
          } else {
-           it.image(61, 187, id(lockopen));
+           it.image(61, 207, id(lockopen));
          }
          
          
          if (id(saunatupa).state == "locked") {
-           it.image(101, 187, id(lockclosed));
+           it.image(101, 207, id(lockclosed));
          } else {
-           it.image(101, 187, id(lockopen));
+           it.image(101, 207, id(lockopen));
          }
          
 
-         it.line(0, 208, 300, 208);
-         it.printf(0, 210, id(smallbebas), TextAlign::TOP_LEFT, "SAUNATUPA");
-         it.printf(125, 210, id(smallbebas), TextAlign::TOP_RIGHT, "%.1f°C", id(saunatupa_temperature).state);
+         it.line(0, 228, 300, 228);
+         it.printf(0, 230, id(smallbebas), TextAlign::TOP_LEFT, "SAUNATUPA");
+         it.printf(125, 230, id(smallbebas), TextAlign::TOP_RIGHT, "%.1f°C", id(saunatupa_temperature).state);
 
-         it.printf(0, 230, id(smallbebas), TextAlign::TOP_LEFT, "AUTOTALLI");
-         it.printf(125, 230, id(smallbebas), TextAlign::TOP_RIGHT, "%.1f°C", id(autotalli_temperature).state);
+         //it.printf(0, 230, id(smallbebas), TextAlign::TOP_LEFT, "AUTOTALLI");
+         //it.printf(125, 230, id(smallbebas), TextAlign::TOP_RIGHT, "%.1f°C", id(autotalli_temperature).state);
 
          it.printf(0, 250, id(smallbebas), TextAlign::TOP_LEFT, "TERASSI");
          it.printf(125, 250, id(smallbebas), TextAlign::TOP_RIGHT, "%.1f°C", id(terassi_temperature).state);

@@ -24,6 +24,7 @@ sensor:
     pin: 14
     unit_of_measurement: 'W'
     name: 'Hetkellinen kulutus'
+    internal_filter: 100ms
     filters:
       - multiply: 60 # (60s/1000 pulses per kWh)
 
