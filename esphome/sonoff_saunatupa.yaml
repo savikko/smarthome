@@ -1,0 +1,155 @@
+# Sonoff 4CH R3
+
+esphome:
+  name: saunarakennus-termostaatti
+  platform: ESP8266
+  board: esp01_1m
+  board_flash_mode: dout  
+
+
+wifi:
+  ssid: !secret wifissid
+  password: !secret wifipass
+  fast_connect: true
+  power_save_mode: HIGH
+  manual_ip:
+    static_ip: 192.168.20.68
+    gateway: 192.168.20.1
+    subnet: 255.255.255.0
+
+
+logger:
+
+api:
+
+web_server:
+  port: 80
+  version: 2
+
+
+ota:
+  - platform: esphome
+
+binary_sensor:
+  - platform: gpio
+    id: button1
+    pin:
+      number: GPIO0
+      mode: INPUT_PULLUP
+      inverted: True
+    on_press:
+      - switch.toggle: relay1      
+  - platform: gpio
+    id: button2
+    pin:
+      number: GPIO9
+      mode: INPUT_PULLUP
+      inverted: True
+    on_press:
+      - switch.toggle: relay2      
+  - platform: gpio
+    id: button3
+    pin:
+      number: GPIO10
+      mode: INPUT_PULLUP
+      inverted: True
+    on_press:
+      - switch.toggle: relay3       
+  - platform: status
+    name: "Sonoff 4CH Stav"
+
+switch:
+  - platform: gpio
+    id: relay1
+    name: "Sonoff 4CH L1 Autotalli"
+    pin: GPIO12
+  - platform: gpio
+    id: relay2
+    name: "Sonoff 4CH L2 Sauna"
+    pin: GPIO5
+  - platform: gpio
+    id: relay3    
+    name: "Sonoff 4CH L3 Saunatupa"
+    pin: GPIO4
+
+sensor:
+  - platform: homeassistant
+    id: autotalli_temperature
+    name: "Autotalli"
+    entity_id: sensor.0xa4c138c2868b29b5_0xa4c138c2868b29b5_temperature
+  - platform: homeassistant
+    id: saunatupa_temperature
+    name: "Saunatupa"
+    entity_id: sensor.ruuvi_saunatupa_tempc
+  - platform: homeassistant
+    id: sauna_temperature
+    name: "Sauna"
+    entity_id: sensor.ruuvi_sauna_tempc
+
+climate:
+  - platform: thermostat
+    name: "Autotalli termostaatti"
+    sensor: autotalli_temperature
+    min_cooling_off_time: 1800s
+    min_cooling_run_time: 1800s
+    min_heating_off_time: 1800s
+    min_heating_run_time: 1800s
+    min_idle_time: 600s
+    cool_action:
+      - switch.turn_off: relay1
+    heat_action:
+      - switch.turn_on: relay1
+    idle_action:
+      - switch.turn_off: relay1
+    visual:
+      min_temperature: 1
+      max_temperature: 25
+    default_preset: Normal
+    preset:
+      - name: Normal
+        default_target_temperature_low: 5 °C
+        default_target_temperature_high: 8 °C
+  - platform: thermostat
+    name: "Saunatupa termostaatti"
+    sensor: saunatupa_temperature
+    min_cooling_off_time: 1800s
+    min_cooling_run_time: 1800s
+    min_heating_off_time: 1800s
+    min_heating_run_time: 1800s
+    min_idle_time: 600s
+    cool_action:
+      - switch.turn_off: relay2
+    heat_action:
+      - switch.turn_on: relay2
+    idle_action:
+      - switch.turn_off: relay2
+    default_preset: Normal
+    preset:
+      - name: Normal
+        default_target_temperature_low: 19 °C
+        default_target_temperature_high: 22 °C
+  - platform: thermostat
+    name: "Sauna termostaatti"
+    sensor: sauna_temperature
+    min_cooling_off_time: 1800s
+    min_cooling_run_time: 1800s
+    min_heating_off_time: 1800s
+    min_heating_run_time: 1800s
+    min_idle_time: 600s
+    cool_action:
+      - switch.turn_off: relay3
+    heat_action:
+      - switch.turn_on: relay3
+    idle_action:
+      - switch.turn_off: relay3
+    default_preset: Normal
+    preset:
+      - name: Normal
+        default_target_temperature_low: 19 °C
+        default_target_temperature_high: 22 °C
+  
+
+status_led:
+  pin: 
+    number: GPIO13
+    inverted: True    
