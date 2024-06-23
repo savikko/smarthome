@@ -13,7 +13,7 @@ wifi:
   ssid: !secret wifissid
   password: !secret wifipass
   fast_connect: true
-  power_save_mode: HIGH
+  power_save_mode: none
   manual_ip:
     static_ip: 192.168.20.38
     gateway: 192.168.20.1
