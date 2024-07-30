@@ -24,7 +24,7 @@ api:
 
 web_server:
   port: 80
-  version: 2
+  version: 3
 
 
 ota:
@@ -90,63 +90,57 @@ climate:
   - platform: thermostat
     name: "Autotalli termostaatti"
     sensor: autotalli_temperature
-    min_cooling_off_time: 1800s
-    min_cooling_run_time: 1800s
     min_heating_off_time: 1800s
     min_heating_run_time: 1800s
     min_idle_time: 600s
-    cool_action:
-      - switch.turn_off: relay1
     heat_action:
       - switch.turn_on: relay1
     idle_action:
       - switch.turn_off: relay1
     visual:
-      min_temperature: 1
-      max_temperature: 25
+      min_temperature: 5
+      max_temperature: 10
+      temperature_step: 0.5
     default_preset: Normal
     preset:
       - name: Normal
         default_target_temperature_low: 5 °C
-        default_target_temperature_high: 8 °C
   - platform: thermostat
     name: "Saunatupa termostaatti"
     sensor: saunatupa_temperature
-    min_cooling_off_time: 1800s
-    min_cooling_run_time: 1800s
     min_heating_off_time: 1800s
     min_heating_run_time: 1800s
     min_idle_time: 600s
-    cool_action:
-      - switch.turn_off: relay2
     heat_action:
       - switch.turn_on: relay2
     idle_action:
       - switch.turn_off: relay2
+    visual:
+      min_temperature: 15
+      max_temperature: 24
+      temperature_step: 0.5
     default_preset: Normal
     preset:
       - name: Normal
         default_target_temperature_low: 19 °C
-        default_target_temperature_high: 22 °C
   - platform: thermostat
     name: "Sauna termostaatti"
     sensor: sauna_temperature
-    min_cooling_off_time: 1800s
-    min_cooling_run_time: 1800s
     min_heating_off_time: 1800s
     min_heating_run_time: 1800s
     min_idle_time: 600s
-    cool_action:
-      - switch.turn_off: relay3
     heat_action:
       - switch.turn_on: relay3
     idle_action:
       - switch.turn_off: relay3
+    visual:
+      min_temperature: 15
+      max_temperature: 24
+      temperature_step: 0.5
     default_preset: Normal
     preset:
       - name: Normal
         default_target_temperature_low: 19 °C
-        default_target_temperature_high: 22 °C
   
 
 status_led:
